@@ -87,7 +87,6 @@ export default {
             },
             // 设置柱状图形的圆角以及颜色
             itemStyle: {
-              barBorderRadius: [0, 33, 33, 0],
               // 指明颜色渐变的方法
               // 指明不同百分比之下的颜色的值
               color: new this.$echarts.graphic.LinearGradient(0, 0, 1, 0, [
@@ -108,7 +107,7 @@ export default {
       }
       this.chart.setOption(initOption)
       // 监听鼠标移入事件 如果鼠标进入图表 则停止定时器
-      this.chart.on('mouserover', () => {
+      this.chart.on('mouseover', () => {
         clearInterval(this.timeId)
       })
       // 如果鼠标移出图表 则重新开启定时器

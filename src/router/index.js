@@ -6,7 +6,8 @@ import SellerPage from '@/views/Seller/SellerPage.vue'
 import TrendPage from '@/views/Trend/TrendPage.vue'
 // 导入 MapPage 商家分布模块
 import MapPage from '@/views/Map/MapPage.vue'
-
+// 导入 RankPage 销量排行模块
+import RankPage from '@/views/Rank/RankPage.vue'
 Vue.use(VueRouter)
 
 const routes = [
@@ -19,6 +20,9 @@ const routes = [
   }, {
     path: '/mappage',
     component: MapPage
+  }, {
+    path: '/rankpage',
+    component: RankPage
   }
 ]
 
