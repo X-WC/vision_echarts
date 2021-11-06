@@ -8,6 +8,8 @@ import TrendPage from '@/views/Trend/TrendPage.vue'
 import MapPage from '@/views/Map/MapPage.vue'
 // 导入 RankPage 销量排行模块
 import RankPage from '@/views/Rank/RankPage.vue'
+// 导入 HotProductPage 热销商品占比模块
+import HotProductPage from '@/views/HotProduct/HotProductPage.vue'
 Vue.use(VueRouter)
 
 const routes = [
@@ -23,6 +25,9 @@ const routes = [
   }, {
     path: '/rankpage',
     component: RankPage
+  }, {
+    path: '/hotproductpage',
+    component: HotProductPage
   }
 ]
 
