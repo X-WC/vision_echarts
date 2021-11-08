@@ -1,15 +1,15 @@
 <template>
   <div class="com-container">
-    <div class="com-chart" ref="hot_product_ref"></div>
-    <span class="iconfont left_arrow" @click="changeLeftArrow">&#xe660;</span>
-    <span class="iconfont right_arrow" @click="changeRightArrow">&#xe65f;</span>
-    <div class="title">女装 </div>
+    <div class="com-chart" ref="hot_ref"></div>
+    <span class="iconfont left_arrow" @click="changeLeftArrow" v-bind:style="comStyle">&#xe660;</span>
+    <span class="iconfont right_arrow" @click="changeRightArrow" v-bind:style="comStyle">&#xe65f;</span>
+    <div class="title" :style="comStyle">{{catName}}</div>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'HotProduct',
+  name: 'Hot',
   data () {
     return {
       chart: null,
@@ -27,34 +27,55 @@ export default {
   destroyed () {
     window.removeEventListener('resize', this.screenAdapter)
   },
+  computed: {
+    // 得到标题名称 名称依赖于 allData 所以使用计算属性
+    catName () {
+      if (!this.allData) {
+        return ''
+      } else {
+        return this.allData[this.currentIndex].name
+      }
+    },
+    // 计算样式的字体大小
+    comStyle () {
+      return {
+        fontSize: this.titleFontSize + 'px'
+      }
+    }
+  },
   methods: {
     // 初始化图表
     initChart () {
-      this.chart = this.$echarts.init(this.$refs.hot_product_ref, 'chalk')
+      this.chart = this.$echarts.init(this.$refs.hot_ref, 'chalk')
       const initOption = {
         title: {
           text: '热销商品销售金额占比统计',
           left: 20,
           top: 20
         },
+        legend: {
+          top: '15%',
+          icon: 'circle'
+        },
+        // tooltip 工具提示
         tooltip: {
           show: true,
           formatter: (arg) => {
-            console.log(arg.data.children)
-            arg.data.children.map((item, index) => {
-              const name = item.name
-              const total = this.allData[index].children[index].value
-              const percentage = (item.value / total * 100).toFixed(1) + '%'
-              return name + ': ' + percentage
+            // 计算总数
+            let total = 0
+            arg.data.children.forEach(item => {
+              total += item.value
             })
-            // const value = arg.data.children.value
-            // console.log(value)
+            // 整理字符串
+            let str = ''
+            arg.data.children.forEach(item => {
+              str += `
+              ${item.name}:${parseInt(item.value / total * 100) + '%'}
+              <br />
+              `
+            })
+            return str
           }
-        },
-        legend: {
-          left: 'center',
-          top: '8%',
-          icon: 'circle'
         },
         series: [
           {
@@ -62,6 +83,7 @@ export default {
             label: {
               show: false
             },
+            // 高亮情况下的文字
             emphasis: {
               label: {
                 show: true
@@ -107,13 +129,19 @@ export default {
     },
     // 响应式图表
     screenAdapter () {
-      this.titleFontSize = this.$refs.hot_product_ref.offsetWidth / 100 * 3.6
+      this.titleFontSize = this.$refs.hot_ref.offsetWidth / 100 * 3.6
       const adapterOption = {
         title: {
           textStyle: {
             fontSize: this.titleFontSize
           }
         },
+        series: [
+          {
+            radius: this.titleFontSize * 4.5,
+            center: ['50%', '60%']
+          }
+        ],
         legend: {
           itemWidth: this.titleFontSize / 2,
           itemHeight: this.titleFontSize / 2,
@@ -124,6 +152,7 @@ export default {
         }
       }
       this.chart.setOption(adapterOption)
+      this.chart.resize()
     },
     // 点击右箭头切换下一张图表
     changeRightArrow () {
