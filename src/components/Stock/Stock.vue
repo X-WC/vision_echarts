@@ -15,15 +15,25 @@ export default {
       timeId: null
     }
   },
+  created () {
+    this.$socket.registerCallBack('stockData', this.getData)
+  },
   mounted () {
     this.initChart()
-    this.getData()
+    // this.getData()
+    this.$socket.send({
+      action: 'getData',
+      socketType: 'stockData',
+      chartName: 'stock',
+      value: ''
+    })
     window.addEventListener('resize', this.screenAdapter)
     this.screenAdapter()
   },
   destroyed () {
     window.removeEventListener('resize', this.screenAdapter)
     clearInterval(this.timeId)
+    this.$socket.unRegisterCallBack('stockData')
   },
   methods: {
     initChart () {
@@ -51,8 +61,8 @@ export default {
         this.startInterval()
       })
     },
-    async getData () {
-      const { data: res } = await this.$http.get('stock')
+    getData (res) {
+      // const { data: res } = await this.$http.get('stock')
       this.allData = res
       // console.log(this.allData)
       this.updateChart()
@@ -84,8 +94,6 @@ export default {
       const seriesArr = showData.map((item, index) => {
         return {
           type: 'pie',
-          // 设置为圆环图
-          radius: [100, 110],
           // 设置每个圆环的中心点
           center: centerArr[index],
           label: {
@@ -94,7 +102,7 @@ export default {
           },
           data: [
             {
-              name: item.name + '\n' + item.sales,
+              name: item.name + '\n\n' + item.sales,
               value: item.sales,
               itemStyle: {
                 color: new this.$echarts.graphic.LinearGradient(0, 1, 0, 0, [
@@ -136,7 +144,7 @@ export default {
     },
     screenAdapter () {
       const titleFontSize = this.$refs.stock_ref.offsetWidth / 100 * 3.6
-      const innerRadius = titleFontSize * 2
+      const innerRadius = titleFontSize * 2.8
       const outterRadius = innerRadius * 1.125
       const adapterOption = {
         title: {

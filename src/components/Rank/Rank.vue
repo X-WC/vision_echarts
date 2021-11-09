@@ -16,10 +16,19 @@ export default {
       timeId: null // 定时器的标识
     }
   },
+  created () {
+    this.$socket.registerCallBack('rankData', this.getData)
+  },
   // mounted DOM元素挂载时
   mounted () {
     this.initChart()
-    this.getData()
+    // this.getData()
+    this.$socket.send({
+      action: 'getData',
+      socketType: 'rankData',
+      chartName: 'rank',
+      value: ''
+    })
     this.screenAdapter()
     window.addEventListener('resize', this.screenAdapter)
   },
@@ -27,6 +36,7 @@ export default {
   destroyed () {
     window.removeEventListener('resize', this.screenAdapter)
     clearInterval(this.timeId) // 停止定时器
+    this.$socket.unRegisterCallBack('rankData')
   },
   methods: {
     // 初始化 echarts 实例对象
@@ -126,8 +136,8 @@ export default {
       })
     },
     // 获取数据
-    async getData () {
-      const { data: res } = await this.$http.get('rank')
+    getData (res) {
+      // const { data: res } = await this.$http.get('rank')
       console.log(res)
       // 对现有数据进行排序
       this.allData = res.sort((a, b) => {

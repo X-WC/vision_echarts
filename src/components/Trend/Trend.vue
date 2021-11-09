@@ -23,15 +23,26 @@ export default {
       titileFontSize: 0 // 设置标题的字体大小
     }
   },
+  created () {
+    this.$socket.registerCallBack('trendData', this.getData)
+  },
   mounted () {
     this.initChart()
-    this.getData()
+    // this.getData()
+    this.$socket.send({
+      action: 'getData',
+      socketType: 'trendData',
+      chartName: 'trend',
+      value: ''
+    })
+    // console.log(this.$socket.send)
     window.addEventListener('resize', this.screenAdapter)
     // 在页面加载完成的时候 主动进行屏幕的适配
     this.screenAdapter()
   },
   destroyed () {
     window.removeEventListener('resize', this.screenAdapter)
+    this.$socket.unRegisterCallBack('trendData')
   },
   computed: {
     // 选定类型
@@ -94,9 +105,10 @@ export default {
       this.chart.setOption(initOption)
     },
     // 获取数据
-    async getData () {
-      const { data: res } = await this.$http.get('trend')
+    getData (res) {
+      // const { data: res } = await this.$http.get('trend')
       this.allData = res
+      console.log(this.allData)
       this.typeArr = this.allData.type
       // 更新图表
       this.updateChart()

@@ -22,10 +22,19 @@ export default {
       timeId: null
     }
   },
+  created () {
+    this.$socket.registerCallBack('sellerData', this.getData)
+  },
   // 钩子函数 mounted
   mounted () {
     this.initChart()
-    this.getData()
+    // this.getData()
+    this.$socket.send({
+      action: 'getData',
+      socketType: 'sellerData',
+      chartName: 'seller',
+      value: ''
+    })
     window.addEventListener('resize', this.screenAdapter)
     // 在页面加载完成的时候 主动进行屏幕的适配
     this.screenAdapter()
@@ -35,6 +44,7 @@ export default {
     clearInterval(this.timeId)
     // 在组件销毁时 取消事件监听器 以免内存泄漏
     window.removeEventListener('resize', this.screenAdapter)
+    this.$socket.unRegisterCallBack('sellerData')
   },
   methods: {
     // 初始化 echartInstance 对象
@@ -116,9 +126,9 @@ export default {
       })
     },
     // 获取服务器的数据
-    async getData () {
+    getData (res) {
       // 请求数据的地址 http://127.0.0.1:8888/api/seller
-      const { data: res } = await this.$http.get('seller')
+      // const { data: res } = await this.$http.get('seller')
       // 将数据进行整合为两个数组
       // res.forEach(element => {
       //   // 商家名称信息

@@ -18,14 +18,27 @@ export default {
       titleFontSize: Number
     }
   },
+  created () {
+    // 注册回调函数
+    this.$socket.registerCallBack('hotData', this.getData)
+  },
   mounted () {
     this.initChart()
-    this.getData()
+    // this.getData()
+    // 发送数据给服务器
+    this.$socket.send({
+      action: 'getData',
+      socketType: 'hotData',
+      chartName: 'hotproduct',
+      value: ''
+    })
     window.addEventListener('resize', this.screenAdapter)
     this.screenAdapter()
   },
   destroyed () {
     window.removeEventListener('resize', this.screenAdapter)
+    // 注销回调函数
+    this.$socket.unRegisterCallBack('hotData')
   },
   computed: {
     // 得到标题名称 名称依赖于 allData 所以使用计算属性
@@ -95,8 +108,9 @@ export default {
       this.chart.setOption(initOption)
     },
     // 获取数据
-    async getData () {
-      const { data: res } = await this.$http.get('hotproduct')
+    // res 就是服务器发送给客户端的图表数据
+    async getData (res) {
+      // const { data: res } = await this.$http.get('hotproduct')
       this.allData = res
       console.log(this.allData)
       this.updateChart()
@@ -143,8 +157,8 @@ export default {
           }
         ],
         legend: {
-          itemWidth: this.titleFontSize / 2,
-          itemHeight: this.titleFontSize / 2,
+          itemWidth: this.titleFontSize,
+          itemHeight: this.titleFontSize,
           itemGap: this.titleFontSize / 2,
           textStyle: {
             fontSize: this.titleFontSize / 2
