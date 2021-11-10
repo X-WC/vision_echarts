@@ -6,6 +6,7 @@
 
 <script>
 import { getProvinceMapInfo } from '@/utils/map_utils.js'
+import { mapState } from 'vuex'
 export default {
   name: 'Map',
   data () {
@@ -35,10 +36,21 @@ export default {
     window.removeEventListener('resize', this.screenAdapter)
     this.$socket.unRegisterCallBack('mapData')
   },
+  computed: {
+    ...mapState(['theme'])
+  },
+  watch: {
+    theme () {
+      this.chart.dispose()
+      this.initChart()
+      this.screenAdapter()
+      this.updateChart()
+    }
+  },
   methods: {
     // 初始化图表
     initChart () {
-      this.chart = this.$echarts.init(this.$refs.map_ref, 'chalk')
+      this.chart = this.$echarts.init(this.$refs.map_ref, this.theme)
       const initOption = {
         title: {
           text: '商家分布',

@@ -5,6 +5,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 export default {
   name: 'Stock',
   data () {
@@ -35,9 +36,20 @@ export default {
     clearInterval(this.timeId)
     this.$socket.unRegisterCallBack('stockData')
   },
+  computed: {
+    ...mapState(['theme'])
+  },
+  watch: {
+    theme () {
+      this.chart.dispose()
+      this.initChart()
+      this.screenAdapter()
+      this.updateChart()
+    }
+  },
   methods: {
     initChart () {
-      this.chart = this.$echarts.init(this.$refs.stock_ref, 'chalk')
+      this.chart = this.$echarts.init(this.$refs.stock_ref, this.theme)
       const initOption = {
         title: {
           text: '库存和销量分析',

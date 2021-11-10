@@ -48,8 +48,7 @@ export default class SocketService {
       }, this.connectRetryCount * 500)
     }
     // 得到服务器发送过来的事件
-    this.ws.onmessage = msg => {
-      // console.log('从服务器获取到的数据' + msg)
+    this.ws.onmessage = (msg) => {
       // 服务返回的数据
       const recvData = JSON.parse(msg.data)
       // 服务器返回数据中的 socketType 的值
@@ -63,9 +62,9 @@ export default class SocketService {
           // 没看懂在干嘛
           this.callBackMapping[socketType].call(this, realData)
         } else if (action === 'fullScreen') {
-
+          this.callBackMapping[socketType].call(this, recvData)
         } else if (action === 'themeChange') {
-
+          this.callBackMapping[socketType].call(this, recvData)
         }
       }
     }

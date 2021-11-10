@@ -5,6 +5,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 export default {
   name: 'Rank',
   data () {
@@ -38,10 +39,21 @@ export default {
     clearInterval(this.timeId) // 停止定时器
     this.$socket.unRegisterCallBack('rankData')
   },
+  computed: {
+    ...mapState(['theme'])
+  },
+  watch: {
+    theme () {
+      this.chart.dispose()
+      this.initChart()
+      this.screenAdapter()
+      this.updateChart()
+    }
+  },
   methods: {
     // 初始化 echarts 实例对象
     initChart () {
-      this.chart = this.$echarts.init(this.$refs.rank_ref, 'chalk')
+      this.chart = this.$echarts.init(this.$refs.rank_ref, this.theme)
       const initOption = {
         // 标题文字的设置
         title: {

@@ -6,6 +6,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 export default {
   name: 'Seller',
   data () {
@@ -46,11 +47,22 @@ export default {
     window.removeEventListener('resize', this.screenAdapter)
     this.$socket.unRegisterCallBack('sellerData')
   },
+  computed: {
+    ...mapState(['theme'])
+  },
+  watch: {
+    theme () {
+      this.chart.dispose()
+      this.initChart()
+      this.screenAdapter()
+      this.updateChart()
+    }
+  },
   methods: {
     // 初始化 echartInstance 对象
     initChart () {
       // 根据 ref 获取 dom 元素
-      this.chart = this.$echarts.init(this.$refs.seller_ref, 'chalk')
+      this.chart = this.$echarts.init(this.$refs.seller_ref, this.theme)
       // 对图表初始化配置的控制
       const initOption = {
         // 设置图表标题

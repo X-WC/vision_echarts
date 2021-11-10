@@ -1,15 +1,15 @@
 <template>
-  <div class="screen-container">
+  <div class="screen-container" :style="containerStyle">
     <header class="screen-header">
       <div>
-        <img src="../../public/static/img/header_border_dark.png" alt="">
+        <img :src="headerSrc" alt="">
       </div>
       <span class="logo">
         聪聪不是冲冲
       </span>
       <span class="title">电商平台实时监控系统</span>
       <div class="title-right">
-        <img class="theme-change" src="../../public/static/img/qiehuan_dark.png" alt="">
+        <img class="theme-change" :src="themeSrc" alt="" @click="handleChangeTheme()">
         <span class="date">2021.11.9</span>
       </div>
     </header>
@@ -67,6 +67,8 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
+import { getThemeValue } from '@/utils/theme_utils.js'
 import Hot from '../components/Hot/Hot.vue'
 import Map from '../components/Map/Map.vue'
 import Rank from '../components/Rank/Rank.vue'
@@ -88,15 +90,71 @@ export default {
       }
     }
   },
+  created () {
+    // 注册回调函数
+    this.$socket.registerCallBack('fullScreen', this.recvData)
+    this.$socket.registerCallBack('themeChange', this.recvThemeChange)
+  },
+  destroyed () {
+    // 销毁回调函数
+    this.$socket.unRegisterCallBack('fullScreen')
+    this.$socket.unRegisterCallBack('themeChange')
+  },
+  computed: {
+    headerSrc () {
+      return '/static/img/' + getThemeValue(this.theme).headerBorderSrc
+    },
+    themeSrc () {
+      return '/static/img/' + getThemeValue(this.theme).themeSrc
+    },
+    containerStyle () {
+      return {
+        backgroundColor: getThemeValue(this.theme).backgroundColor,
+        color: getThemeValue(this.theme).titleColor
+      }
+    },
+    ...mapState(['theme'])
+  },
   methods: {
     changeSize (chartName) {
       // console.log(chartName)
       // 先将 fullScreenStatus 的值 取反
-      this.fullScreenStatus[chartName] = !this.fullScreenStatus[chartName]
+      // this.fullScreenStatus[chartName] = !this.fullScreenStatus[chartName]
       // 再调用每个组件的 screenAdapter 的方法
+      // this.$nextTick(() => {
+      //   this.$refs[chartName].screenAdapter()
+      // })
+      // 使用websocket实现联动效果
+      const targetValue = !this.fullScreenStatus[chartName]
+      this.$socket.send({
+        action: 'fullScreen',
+        socketType: 'fullScreen',
+        chartName: chartName,
+        value: targetValue
+      })
+    },
+    recvData (data) {
+      console.log(data)
+      const chartName = data.chartName
+      const targetValue = data.value
+      this.fullScreenStatus[chartName] = targetValue
+      // $nextTick() 方法调用 不错
       this.$nextTick(() => {
         this.$refs[chartName].screenAdapter()
       })
+    },
+    // 改变主题
+    handleChangeTheme () {
+      this.$socket.send({
+        action: 'themeChange',
+        socketType: 'themeChange',
+        chartName: '',
+        value: ''
+      })
+    },
+    recvThemeChange () {
+      // 修改vuex的数据
+      this.$store.commit('changeTheme')
     }
   },
   components: {

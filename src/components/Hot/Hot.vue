@@ -8,6 +8,8 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
+import { getThemeValue } from '@/utils/theme_utils.js'
 export default {
   name: 'Hot',
   data () {
@@ -52,14 +54,16 @@ export default {
     // 计算样式的字体大小
     comStyle () {
       return {
-        fontSize: this.titleFontSize + 'px'
+        fontSize: this.titleFontSize + 'px',
+        color: getThemeValue(this.theme).titleColor
       }
-    }
+    },
+    ...mapState(['theme'])
   },
   methods: {
     // 初始化图表
     initChart () {
-      this.chart = this.$echarts.init(this.$refs.hot_ref, 'chalk')
+      this.chart = this.$echarts.init(this.$refs.hot_ref, this.theme)
       const initOption = {
         title: {
           text: '热销商品销售金额占比统计',
@@ -185,6 +189,14 @@ export default {
         this.currentIndex = this.allData.length - 1
       }
       this.updateChart()
+    }
+  },
+  watch: {
+    theme () {
+      this.chart.dispose() // 销毁当前图表
+      this.initChart() // 初始化图表对象
+      this.screenAdapter() // 完成屏幕的适配
+      this.updateChart() // 更新图表
     }
   }
 }

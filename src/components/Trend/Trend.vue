@@ -12,6 +12,8 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
+import { getThemeValue } from '@/utils/theme_utils.js'
 export default {
   name: 'Trend',
   data () {
@@ -67,14 +69,24 @@ export default {
     // 设置给标题的样式
     comStyle () {
       return {
-        fontSize: this.titileFontSize + 'px'
+        fontSize: this.titileFontSize + 'px',
+        color: getThemeValue(this.theme).titleColor
       }
+    },
+    ...mapState(['theme'])
+  },
+  watch: {
+    theme () {
+      this.chart.dispose()
+      this.initChart()
+      this.screenAdapter()
+      this.updateChart()
     }
   },
   methods: {
     // 初始化图表对象
     initChart () {
-      this.chart = this.$echarts.init(this.$refs.trend_ref, 'chalk')
+      this.chart = this.$echarts.init(this.$refs.trend_ref, this.theme)
       // 设置图表初始化配置
       const initOption = {
         xAxis: {
